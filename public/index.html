@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A clear, secure M-Pesa STK Push sandbox checkout." />
+    <title>M-Pesa STK Checkout</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="M-Pesa checkout home">
+          <span class="brand-mark" aria-hidden="true"><span></span><span></span></span>
+          <span>M-Pesa <em>checkout</em></span>
+        </a>
+        <div class="sandbox-pill"><span class="status-dot"></span> Sandbox mode</div>
+      </header>
+
+      <main class="checkout-layout">
+        <aside class="guidance-panel">
+          <p class="eyebrow">A simple mobile handoff</p>
+          <h1>Send a prompt to your phone.</h1>
+          <p class="intro">Start a secure M-Pesa payment request and approve it from the phone in your hand.</p>
+
+          <ol class="process-list">
+            <li class="process-item active">
+              <span class="step-number">01</span>
+              <span><strong>Enter details</strong><small>Use your Safaricom number and amount.</small></span>
+            </li>
+            <li class="process-item">
+              <span class="step-number">02</span>
+              <span><strong>Check your phone</strong><small>An M-Pesa prompt will appear shortly.</small></span>
+            </li>
+            <li class="process-item">
+              <span class="step-number">03</span>
+              <span><strong>Approve securely</strong><small>Enter your PIN on your phone, never here.</small></span>
+            </li>
+          </ol>
+
+          <div class="trust-note">
+            <span class="lock-icon" aria-hidden="true">⌁</span>
+            <span><strong>Your PIN stays private.</strong><br />This page never asks for it.</span>
+          </div>
+        </aside>
+
+        <section class="form-panel" aria-labelledby="form-title">
+          <div class="panel-topline"><span class="receipt-label">PAYMENT REQUEST</span><span class="receipt-line"></span></div>
+          <h2 id="form-title">Where should we send it?</h2>
+          <p class="panel-copy">We’ll send an STK Push to the number below. Make sure the phone is nearby.</p>
+
+          <form id="payment-form" novalidate>
+            <div class="field-group">
+              <label for="phone">Safaricom phone number</label>
+              <div class="input-wrap phone-wrap"><span class="input-prefix">KE</span><input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0712 345 678" aria-describedby="phone-help phone-error" required /><span class="field-check" aria-hidden="true">✓</span></div>
+              <p class="field-help" id="phone-help">Use 07…, 01…, +254… or 254…</p>
+              <p class="field-error" id="phone-error" role="alert"></p>
+            </div>
+
+            <div class="field-group amount-group">
+              <label for="amount">Amount</label>
+              <div class="input-wrap amount-wrap"><span class="currency">KES</span><input id="amount" name="amount" type="number" min="1" max="150000" step="1" value="1" aria-describedby="amount-help amount-error" required /></div>
+              <p class="field-help" id="amount-help">Sandbox payments accept whole numbers from KES 1.</p>
+              <p class="field-error" id="amount-error" role="alert"></p>
+            </div>
+
+            <button class="submit-button" id="submit-button" type="submit"><span class="button-label">Send STK prompt</span><span class="button-arrow" aria-hidden="true">↗</span></button>
+          </form>
+
+          <div class="status-card" id="status-card" data-state="idle" aria-live="polite" aria-atomic="true">
+            <span class="status-icon" aria-hidden="true">i</span>
+            <div><strong id="status-title">Ready when you are</strong><p id="status-message">Your payment request will appear here.</p></div>
+          </div>
+
+          <p class="fine-print">By continuing, you’re testing against the Safaricom Daraja sandbox. No production funds are moved.</p>
+        </section>
+      </main>
+
+      <footer class="footer"><span>Built for clear, safe payment handoffs.</span><span>Daraja sandbox · Local testing</span></footer>
+    </div>
+    <script src="/app.js" defer></script>
+  </body>
+</html>

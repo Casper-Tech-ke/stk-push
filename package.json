@@ -1,0 +1,12 @@
+{
+  "name": "mpesa-stk-checkout",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A secure M-Pesa STK Push sandbox checkout.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
