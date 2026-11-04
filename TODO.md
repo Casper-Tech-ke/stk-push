@@ -15,6 +15,7 @@
 - [ ] Show a prominent loading state while the request is being initiated and prevent duplicate submissions.
 - [ ] Show understandable success and error feedback based on the server response with an easy retry path.
 - [x] Poll the server callback result and distinguish successful, cancelled, insufficient-balance, timeout, and failed outcomes.
+- [x] Display recent masked STK request and callback events in the frontend activity log.
 
 ## Safaricom integration
 

@@ -53,6 +53,7 @@
           </form>
           <div class="status-card" id="status-card" data-state="idle" aria-live="polite" aria-atomic="true"><span class="status-icon" aria-hidden="true">i</span><div><strong id="status-title">Ready when you are</strong><p id="status-message">Your payment status will appear here.</p></div></div>
           <div class="status-legend" aria-label="Payment statuses"><span><i class="legend-dot pending"></i>Pending</span><span><i class="legend-dot success"></i>Successful</span><span><i class="legend-dot cancelled"></i>Cancelled</span><span><i class="legend-dot danger"></i>Insufficient / failed</span></div>
+          <section class="activity-panel" aria-labelledby="activity-title"><div class="activity-heading"><span id="activity-title">Recent STK activity</span><button id="refresh-activity" type="button">Refresh</button></div><div id="activity-list" class="activity-list"><p class="activity-empty">No STK events in this session yet.</p></div></section>
           <p class="fine-print" id="fine-print">Checking the active Daraja environment…</p>
         </section>
       </main>

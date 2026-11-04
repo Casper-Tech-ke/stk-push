@@ -8,6 +8,8 @@ const statusMessage = document.querySelector('#status-message');
 const environmentPill = document.querySelector('#environment-pill');
 const finePrint = document.querySelector('#fine-print');
 const footerMode = document.querySelector('#footer-mode');
+const activityList = document.querySelector('#activity-list');
+const refreshActivity = document.querySelector('#refresh-activity');
 
 const states = {
   idle: { icon: 'i', title: 'Ready when you are', message: 'Your payment status will appear here.' },
@@ -27,6 +29,46 @@ function setStatus(state, message) {
   statusCard.querySelector('.status-icon').textContent = copy.icon;
   statusTitle.textContent = copy.title;
   statusMessage.textContent = message || copy.message;
+}
+
+function formatActivityTime(timestamp) {
+  return new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(new Date(timestamp));
+}
+
+function renderActivity(items) {
+  activityList.replaceChildren();
+  if (!items.length) {
+    const empty = document.createElement('p');
+    empty.className = 'activity-empty';
+    empty.textContent = 'No STK events in this session yet.';
+    activityList.append(empty);
+    return;
+  }
+  items.slice(0, 8).forEach((item) => {
+    const row = document.createElement('div');
+    row.className = 'activity-row';
+    const marker = document.createElement('i');
+    marker.className = `activity-marker ${item.state || 'pending'}`;
+    const content = document.createElement('div');
+    const title = document.createElement('strong');
+    title.textContent = item.title || 'STK event';
+    const message = document.createElement('p');
+    message.textContent = item.message || 'Daraja event received.';
+    const time = document.createElement('time');
+    time.textContent = formatActivityTime(item.createdAt);
+    content.append(title, message);
+    row.append(marker, content, time);
+    activityList.append(row);
+  });
+}
+
+async function loadActivity() {
+  try {
+    const response = await fetch('/api/activity', { cache: 'no-store' });
+    if (!response.ok) return;
+    const result = await response.json();
+    renderActivity(result.items || []);
+  } catch { /* Activity is supplementary to checkout. */ }
 }
 
 function setFieldError(id, message) {
@@ -59,6 +101,7 @@ async function pollStatus(checkoutRequestId) {
     if (!response.ok) continue;
     const result = await response.json();
     setStatus(result.state, result.message);
+    await loadActivity();
     if (result.state !== 'pending') return;
   }
   setStatus('timeout', 'No callback arrived before the monitoring window closed. Check the M-Pesa message or business statement.');
@@ -76,6 +119,7 @@ form.addEventListener('submit', async (event) => {
     const result = await response.json().catch(() => ({}));
     if (!response.ok || !result.ok) throw new Error(result.message || 'The payment request could not be started.');
     setStatus('pending', result.message);
+    await loadActivity();
     if (result.checkoutRequestId) pollStatus(result.checkoutRequestId);
   } catch (error) {
     setStatus('error', error.message);
@@ -84,6 +128,9 @@ form.addEventListener('submit', async (event) => {
     submitButton.querySelector('.button-label').textContent = 'Send STK prompt';
   }
 });
+
+refreshActivity.addEventListener('click', loadActivity);
+loadActivity();
 
 Promise.resolve(fetch('/api/config', { cache: 'no-store' })).then((response) => response.json()).then((config) => {
   const label = config.environment === 'production' ? 'Production · Till live' : 'Sandbox · Test mode';

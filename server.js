@@ -9,6 +9,7 @@ const MAX_BODY_BYTES = 32 * 1024;
 const isProduction = process.env.MPESA_ENV === 'production';
 const safaricomBaseUrl = isProduction ? 'https://api.safaricom.co.ke' : 'https://sandbox.safaricom.co.ke';
 const transactionStatuses = new Map();
+const activityLog = [];
 
 const contentTypes = {
   '.html': 'text/html; charset=utf-8',
@@ -79,6 +80,11 @@ function classifyCallback(callback) {
   if (code === 1032 || description.includes('cancel')) return { state: 'cancelled', title: 'Payment cancelled', message: callback.ResultDesc || 'The payment was cancelled on the customer’s phone.' };
   if (code === 1037 || description.includes('timeout') || description.includes('no response')) return { state: 'timeout', title: 'No response from phone', message: callback.ResultDesc || 'The prompt expired before it was completed.' };
   return { state: 'failed', title: 'Payment not completed', message: callback?.ResultDesc || 'Safaricom could not complete the payment.' };
+}
+
+function addActivity(entry) {
+  activityLog.unshift({ ...entry, createdAt: Date.now() });
+  if (activityLog.length > 30) activityLog.pop();
 }
 
 function getCallbackUrl(req) {
@@ -187,6 +193,13 @@ async function handleStkRequest(req, res) {
       checkoutRequestId: result.CheckoutRequestID,
       createdAt: Date.now()
     });
+    addActivity({
+      type: 'request',
+      state: 'pending',
+      title: 'STK prompt accepted',
+      message: `KES ${amount} request accepted for ${phoneNumber.slice(0, 6)}•••${phoneNumber.slice(-2)}`,
+      checkoutRequestId: result.CheckoutRequestID
+    });
     console.log(`STK request accepted for ${phoneNumber.slice(0, 6)}•••${phoneNumber.slice(-2)} / KES ${amount}`);
     sendJson(res, 200, {
       ok: true,
@@ -207,10 +220,18 @@ function handleCallback(req, res) {
       try { payload = JSON.parse(body || '{}'); } catch { /* Safaricom callbacks should be JSON. */ }
       const callback = payload?.Body?.stkCallback;
       if (callback?.CheckoutRequestID) {
+        const classified = classifyCallback(callback);
         transactionStatuses.set(callback.CheckoutRequestID, {
-          ...classifyCallback(callback),
+          ...classified,
           checkoutRequestId: callback.CheckoutRequestID,
           createdAt: Date.now()
+        });
+        addActivity({
+          type: 'callback',
+          state: classified.state,
+          title: classified.title,
+          message: classified.message,
+          checkoutRequestId: callback.CheckoutRequestID
         });
       }
       if (Number(callback?.ResultCode) === 0) {
@@ -256,6 +277,10 @@ const server = http.createServer(async (req, res) => {
   }
   if (req.method === 'GET' && url.pathname === '/health') {
     sendJson(res, 200, { ok: true, service: 'mpesa-stk-checkout', environment: isProduction ? 'production' : 'sandbox' });
+    return;
+  }
+  if (req.method === 'GET' && url.pathname === '/api/activity') {
+    sendJson(res, 200, { ok: true, items: activityLog });
     return;
   }
   if (req.method === 'GET' && url.pathname.startsWith('/api/stk-status/')) {
