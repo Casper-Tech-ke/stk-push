@@ -135,10 +135,12 @@ In production, `HO_NUMBER` and `TILL_NUMBER` are required. The server refuses a 
 
 ```bash
 npm install
+cp .env.example .env
+# Edit .env with your protected Daraja values before production testing.
 npm start
 ```
 
-The server listens on port `3000` by default. Useful checks:
+The server listens on port `3000` by default locally and uses Render’s injected `PORT` automatically when deployed. Useful checks:
 
 ```bash
 curl http://127.0.0.1:3000/health
@@ -147,6 +149,19 @@ curl http://127.0.0.1:3000/api/activity
 ```
 
 Open the checkout at `http://127.0.0.1:3000/` and the Daraja guide at `http://127.0.0.1:3000/docs`.
+
+## Render deployment
+
+This repository includes [`render.yaml`](./render.yaml) for a Render Web Service. In Render, create a service from the public `stk-push` repository and use the Blueprint configuration, or enter these values manually:
+
+```text
+Build Command: npm install
+Start Command: npm start
+Health Check Path: /health
+Plan: Free for testing, paid for live payment traffic
+```
+
+Add every blank value from [`.env.example`](./.env.example) in Render’s Environment settings. After the first deploy, copy the service’s HTTPS URL into `CALLBACK_URL` with `/api/callback` appended, redeploy, and register that exact callback URL in Daraja. Render Free services can sleep after inactivity, so use a paid instance for dependable production payment callbacks.
 
 ## Production checklist
 
@@ -177,9 +192,12 @@ Safaricom states that production callback URLs must be HTTPS and publicly reacha
 │   └── assets/
 │       ├── mpesa-logo.png
 │       └── proof/             # Supplied evidence screenshots
-├── plan.md
-├── TODO.md
-└── package.json
+├── .env.example               # Safe local/Render configuration template
+├── .gitignore                 # Secret and local-artifact exclusions
+├── render.yaml                # Render Web Service Blueprint
+├── app.config.ts              # Managed project logo metadata
+├── package.json
+└── README.md
 ```
 
 ## Evidence supplied for this project

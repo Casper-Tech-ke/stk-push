@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: stk-push
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: MPESA_ENV
+        sync: false
+      - key: CONSUMER_KEY
+        sync: false
+      - key: CONSUMER_SECRET
+        sync: false
+      - key: PASSKEY
+        sync: false
+      - key: HO_NUMBER
+        sync: false
+      - key: TILL_NUMBER
+        sync: false
+      - key: CALLBACK_URL
+        sync: false
+      - key: MPESA_TRANSACTION_TYPE
+        value: CustomerBuyGoodsOnline

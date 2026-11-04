@@ -2,7 +2,7 @@
   "name": "mpesa-stk-checkout",
   "version": "1.0.0",
   "private": true,
-  "description": "A secure M-Pesa STK Push sandbox checkout.",
+  "description": "A secure M-Pesa STK Push Buy Goods Till checkout for Daraja sandbox and production.",
   "scripts": {
     "start": "node server.js"
   },
