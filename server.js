@@ -105,14 +105,16 @@ async function getAccessToken() {
 }
 
 async function sendStkPush(req, phoneNumber, amount) {
-  const shortCode = process.env.SHORTCODE || (isProduction ? '' : '174379');
-  if (!shortCode) throw new Error('The production shortcode is not configured on the server.');
+  const businessShortCode = process.env.HO_NUMBER || (isProduction ? '' : (process.env.SHORTCODE || '174379'));
+  const tillNumber = process.env.TILL_NUMBER || (isProduction ? '' : (process.env.SHORTCODE || '174379'));
+  if (!businessShortCode) throw new Error('The production H.O./Store number is not configured on the server.');
+  if (!tillNumber) throw new Error('The production Till number is not configured on the server.');
   const transactionType = process.env.MPESA_TRANSACTION_TYPE || (isProduction ? 'CustomerBuyGoodsOnline' : 'CustomerPayBillOnline');
   const passkey = process.env.PASSKEY;
   if (!passkey) throw new Error('The Safaricom passkey is not configured on the server.');
 
   const timestamp = currentTimestamp();
-  const password = Buffer.from(`${shortCode}${passkey}${timestamp}`).toString('base64');
+  const password = Buffer.from(`${businessShortCode}${passkey}${timestamp}`).toString('base64');
   const token = await getAccessToken();
   const response = await fetch(`${safaricomBaseUrl}/mpesa/stkpush/v1/processrequest`, {
     method: 'POST',
@@ -122,13 +124,13 @@ async function sendStkPush(req, phoneNumber, amount) {
       Accept: 'application/json'
     },
     body: JSON.stringify({
-      BusinessShortCode: shortCode,
+      BusinessShortCode: businessShortCode,
       Password: password,
       Timestamp: timestamp,
       TransactionType: transactionType,
       Amount: amount,
       PartyA: phoneNumber,
-      PartyB: shortCode,
+      PartyB: tillNumber,
       PhoneNumber: phoneNumber,
       AccountReference: 'Till payment',
       TransactionDesc: 'Buy Goods payment',
@@ -221,7 +223,8 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'GET' && url.pathname === '/api/config') {
     sendJson(res, 200, {
       environment: isProduction ? 'production' : 'sandbox',
-      transactionType: process.env.MPESA_TRANSACTION_TYPE || (isProduction ? 'CustomerBuyGoodsOnline' : 'CustomerPayBillOnline')
+      transactionType: process.env.MPESA_TRANSACTION_TYPE || (isProduction ? 'CustomerBuyGoodsOnline' : 'CustomerPayBillOnline'),
+      tillConfiguration: isProduction ? Boolean(process.env.HO_NUMBER && process.env.TILL_NUMBER) : true
     });
     return;
   }
