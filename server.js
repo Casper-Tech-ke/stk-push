@@ -107,6 +107,7 @@ async function getAccessToken() {
 async function sendStkPush(req, phoneNumber, amount) {
   const shortCode = process.env.SHORTCODE || (isProduction ? '' : '174379');
   if (!shortCode) throw new Error('The production shortcode is not configured on the server.');
+  const transactionType = process.env.MPESA_TRANSACTION_TYPE || (isProduction ? 'CustomerBuyGoodsOnline' : 'CustomerPayBillOnline');
   const passkey = process.env.PASSKEY;
   if (!passkey) throw new Error('The Safaricom passkey is not configured on the server.');
 
@@ -124,13 +125,13 @@ async function sendStkPush(req, phoneNumber, amount) {
       BusinessShortCode: shortCode,
       Password: password,
       Timestamp: timestamp,
-      TransactionType: 'CustomerPayBillOnline',
+      TransactionType: transactionType,
       Amount: amount,
       PartyA: phoneNumber,
       PartyB: shortCode,
       PhoneNumber: phoneNumber,
-      AccountReference: 'M-Pesa checkout',
-      TransactionDesc: 'Sandbox payment',
+      AccountReference: 'Till payment',
+      TransactionDesc: 'Buy Goods payment',
       CallBackURL: getCallbackUrl(req)
     })
   });
@@ -184,7 +185,7 @@ function handleCallback(req, res) {
       let payload = {};
       try { payload = JSON.parse(body || '{}'); } catch { /* Safaricom callbacks should be JSON. */ }
       const callback = payload?.Body?.stkCallback;
-      if (callback?.ResultCode === 0) {
+      if (Number(callback?.ResultCode) === 0) {
         const items = callback.CallbackMetadata?.Item || [];
         const details = Object.fromEntries(items.map((item) => [item.Name, item.Value]));
         console.log(`Payment successful: KES ${details.Amount || '?'} / receipt ${details.MpesaReceiptNumber || '?'}`);
@@ -218,7 +219,10 @@ function serveStatic(req, res, pathname) {
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   if (req.method === 'GET' && url.pathname === '/api/config') {
-    sendJson(res, 200, { environment: isProduction ? 'production' : 'sandbox' });
+    sendJson(res, 200, {
+      environment: isProduction ? 'production' : 'sandbox',
+      transactionType: process.env.MPESA_TRANSACTION_TYPE || (isProduction ? 'CustomerBuyGoodsOnline' : 'CustomerPayBillOnline')
+    });
     return;
   }
   if (req.method === 'GET' && url.pathname === '/health') {

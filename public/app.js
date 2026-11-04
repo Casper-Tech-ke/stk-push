@@ -17,7 +17,7 @@ async function loadEnvironment() {
     const production = config.environment === 'production';
     environmentPill.innerHTML = `<span class="status-dot"></span> ${production ? 'Production test' : 'Sandbox mode'}`;
     finePrint.textContent = production
-      ? 'Production test mode. Continue only when you intend to trigger a live M-Pesa request.'
+      ? 'Production Till test mode. Continue only when you intend to trigger a live M-Pesa request.'
       : 'By continuing, you’re testing against the Safaricom Daraja sandbox. No production funds are moved.';
     footerMode.textContent = production ? 'Daraja production · Preview testing' : 'Daraja sandbox · Local testing';
   } catch {

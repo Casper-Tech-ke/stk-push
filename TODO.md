@@ -18,6 +18,8 @@
 
 - [ ] Preserve the Safaricom Daraja OAuth, STK Push request, and callback response behavior for the configured environment.
 - [ ] Select sandbox or production endpoints only from protected runtime configuration.
+- [ ] Use `CustomerBuyGoodsOnline` for a production Buy Goods Till STK Push, with the Till as the business shortcode and Party B.
+- [ ] Keep Business Buy Goods B2B separate from the customer-facing STK Push flow.
 - [ ] Show the active environment in the interface without exposing credentials.
 - [ ] Require a public HTTPS callback URL when production mode is enabled.
 - [ ] Receive callback notifications at a server endpoint and return the accepted response expected by Safaricom.
