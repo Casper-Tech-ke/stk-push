@@ -1,10 +1,11 @@
 # TODO
 
-## Responsive payment experience
+## XCASPER SPACE payment experience
 
-- [ ] Provide a polished responsive HTML frontend for the M-Pesa STK Push sandbox application.
+- [x] Provide a polished responsive HTML frontend branded “XCASPER SPACE STK TILL PUSH” with a green/dark-blue theme and M-PESA/STK visual marks.
 - [ ] Let the user enter a Kenyan phone number and payment amount.
-- [ ] Show concise sandbox-oriented payment guidance and explain that the user must approve the prompt on their phone.
+- [ ] Show production-aware Till payment guidance and explain that the user must approve the prompt on their phone.
+- [x] Include OG/Twitter metadata, a favicon/logo asset, Casper-Tech-ke GitHub, Instagram, Telegram links, and a professional footer.
 
 ## Validation and request flow
 
@@ -13,6 +14,7 @@
 - [ ] Submit to a server-side STK Push endpoint without exposing consumer credentials or the passkey in browser code.
 - [ ] Show a prominent loading state while the request is being initiated and prevent duplicate submissions.
 - [ ] Show understandable success and error feedback based on the server response with an easy retry path.
+- [x] Poll the server callback result and distinguish successful, cancelled, insufficient-balance, timeout, and failed outcomes.
 
 ## Safaricom integration
 
@@ -28,3 +30,4 @@
 ## Preview readiness
 
 - [ ] Serve the declared page route manifest and listen on the managed runtime port.
+- [x] Serve an in-app `/docs` page documenting Daraja product selection, Till identifier mapping, API calls, callback requirements, and troubleshooting references.

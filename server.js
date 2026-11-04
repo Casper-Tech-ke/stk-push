@@ -8,12 +8,14 @@ const PUBLIC_DIR = path.join(__dirname, 'public');
 const MAX_BODY_BYTES = 32 * 1024;
 const isProduction = process.env.MPESA_ENV === 'production';
 const safaricomBaseUrl = isProduction ? 'https://api.safaricom.co.ke' : 'https://sandbox.safaricom.co.ke';
+const transactionStatuses = new Map();
 
 const contentTypes = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
+  '.png': 'image/png',
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon'
 };
@@ -67,6 +69,16 @@ function validateAmount(value) {
   const amount = Number(value);
   if (!Number.isInteger(amount) || amount < 1 || amount > 150000) return null;
   return amount;
+}
+
+function classifyCallback(callback) {
+  const code = Number(callback?.ResultCode);
+  const description = String(callback?.ResultDesc || '').toLowerCase();
+  if (code === 0) return { state: 'successful', title: 'Payment successful', message: 'The Till payment was completed successfully.' };
+  if (description.includes('insufficient') || description.includes('balance')) return { state: 'insufficient', title: 'Insufficient balance', message: callback.ResultDesc || 'The customer did not have enough M-Pesa balance.' };
+  if (code === 1032 || description.includes('cancel')) return { state: 'cancelled', title: 'Payment cancelled', message: callback.ResultDesc || 'The payment was cancelled on the customer’s phone.' };
+  if (code === 1037 || description.includes('timeout') || description.includes('no response')) return { state: 'timeout', title: 'No response from phone', message: callback.ResultDesc || 'The prompt expired before it was completed.' };
+  return { state: 'failed', title: 'Payment not completed', message: callback?.ResultDesc || 'Safaricom could not complete the payment.' };
 }
 
 function getCallbackUrl(req) {
@@ -168,6 +180,13 @@ async function handleStkRequest(req, res) {
 
   try {
     const result = await sendStkPush(req, phoneNumber, amount);
+    transactionStatuses.set(result.CheckoutRequestID, {
+      state: 'pending',
+      title: 'Prompt sent to your phone',
+      message: 'Approve the M-Pesa prompt on your phone to complete the Till payment.',
+      checkoutRequestId: result.CheckoutRequestID,
+      createdAt: Date.now()
+    });
     console.log(`STK request accepted for ${phoneNumber.slice(0, 6)}•••${phoneNumber.slice(-2)} / KES ${amount}`);
     sendJson(res, 200, {
       ok: true,
@@ -187,6 +206,13 @@ function handleCallback(req, res) {
       let payload = {};
       try { payload = JSON.parse(body || '{}'); } catch { /* Safaricom callbacks should be JSON. */ }
       const callback = payload?.Body?.stkCallback;
+      if (callback?.CheckoutRequestID) {
+        transactionStatuses.set(callback.CheckoutRequestID, {
+          ...classifyCallback(callback),
+          checkoutRequestId: callback.CheckoutRequestID,
+          createdAt: Date.now()
+        });
+      }
       if (Number(callback?.ResultCode) === 0) {
         const items = callback.CallbackMetadata?.Item || [];
         const details = Object.fromEntries(items.map((item) => [item.Name, item.Value]));
@@ -202,7 +228,7 @@ function handleCallback(req, res) {
 }
 
 function serveStatic(req, res, pathname) {
-  const requested = pathname === '/' ? '/index.html' : pathname;
+  const requested = pathname === '/' ? '/index.html' : (pathname === '/docs' || pathname === '/docs/' ? '/docs.html' : pathname);
   const filePath = path.resolve(PUBLIC_DIR, `.${requested}`);
   if (!filePath.startsWith(`${PUBLIC_DIR}${path.sep}`)) {
     sendText(res, 403, 'Forbidden', 'text/plain; charset=utf-8');
@@ -230,6 +256,16 @@ const server = http.createServer(async (req, res) => {
   }
   if (req.method === 'GET' && url.pathname === '/health') {
     sendJson(res, 200, { ok: true, service: 'mpesa-stk-checkout', environment: isProduction ? 'production' : 'sandbox' });
+    return;
+  }
+  if (req.method === 'GET' && url.pathname.startsWith('/api/stk-status/')) {
+    const checkoutRequestId = decodeURIComponent(url.pathname.slice('/api/stk-status/'.length));
+    const status = transactionStatuses.get(checkoutRequestId);
+    if (!status) {
+      sendJson(res, 404, { ok: false, message: 'Transaction status not found.' });
+      return;
+    }
+    sendJson(res, 200, { ok: true, ...status });
     return;
   }
   if (req.method === 'POST' && url.pathname === '/api/stk-push') {

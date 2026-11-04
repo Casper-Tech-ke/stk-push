@@ -3,80 +3,61 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="A clear, secure M-Pesa STK Push checkout." />
-    <title>M-Pesa STK Checkout</title>
+    <meta name="theme-color" content="#071c2e" />
+    <meta name="description" content="XCASPER SPACE STK TILL PUSH — secure production Buy Goods Till payments through Safaricom M-Pesa." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="XCASPER SPACE STK TILL PUSH" />
+    <meta property="og:description" content="A focused M-Pesa STK Push checkout for production Buy Goods Till payments." />
+    <meta property="og:url" content="https://xcasper.space/" />
+    <meta property="og:image" content="https://xcasper.space/assets/mpesa-logo.png" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="XCASPER SPACE STK TILL PUSH" />
+    <meta name="twitter:description" content="Secure M-Pesa Buy Goods Till checkout by Casper-Tech-ke." />
+    <link rel="icon" href="/assets/mpesa-logo.png" />
     <link rel="stylesheet" href="/styles.css" />
+    <title>XCASPER SPACE STK TILL PUSH</title>
   </head>
   <body>
+    <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
     <div class="page-shell">
       <header class="topbar">
-        <a class="brand" href="/" aria-label="M-Pesa checkout home">
-          <span class="brand-mark" aria-hidden="true"><span></span><span></span></span>
-          <span>M-Pesa <em>checkout</em></span>
+        <a class="brand" href="/" aria-label="XCASPER SPACE home">
+          <span class="brand-orbit" aria-hidden="true"><span></span></span>
+          <span><b>XCASPER SPACE</b><small>STK TILL PUSH</small></span>
         </a>
-        <div class="sandbox-pill" id="environment-pill"><span class="status-dot"></span> Loading mode</div>
+        <div class="top-actions"><a href="/docs">Setup guide</a><div class="environment-pill" id="environment-pill"><span class="status-dot"></span> Loading mode</div></div>
       </header>
 
       <main class="checkout-layout">
-        <aside class="guidance-panel">
-          <p class="eyebrow">A simple mobile handoff</p>
-          <h1>Send a prompt to your phone.</h1>
-          <p class="intro">Start a secure Buy Goods payment request and approve it from the phone in your hand.</p>
-
+        <section class="hero-panel">
+          <div class="logo-row"><div class="logo-tile"><img src="/assets/mpesa-logo.png" alt="M-PESA" /></div><div class="stk-badge"><span class="phone-glyph">⌁</span><span>STK<br /><b>PUSH</b></span></div></div>
+          <p class="eyebrow">CASPER-TECH-KE / PAYMENT INFRASTRUCTURE</p>
+          <h1>Move money with a tap, not a queue.</h1>
+          <p class="intro">A clean, secure handoff for Buy Goods Till payments. Enter the customer’s Safaricom number, then let the payment prompt do the work.</p>
+          <div class="signal-line"><span></span><span></span><span></span><span></span><span></span><em>Daraja connected</em></div>
           <ol class="process-list">
-            <li class="process-item active">
-              <span class="step-number">01</span>
-              <span><strong>Enter details</strong><small>Use your Safaricom number and amount.</small></span>
-            </li>
-            <li class="process-item">
-              <span class="step-number">02</span>
-              <span><strong>Check your phone</strong><small>An M-Pesa prompt will appear shortly.</small></span>
-            </li>
-            <li class="process-item">
-              <span class="step-number">03</span>
-              <span><strong>Approve securely</strong><small>Enter your PIN on your phone, never here.</small></span>
-            </li>
+            <li><span>01</span><div><strong>Enter details</strong><small>Use a valid Kenyan Safaricom number.</small></div></li>
+            <li><span>02</span><div><strong>Prompt delivered</strong><small>Watch the phone for an M-Pesa STK prompt.</small></div></li>
+            <li><span>03</span><div><strong>Confirm on phone</strong><small>Approve with the M-Pesa PIN. Never share it here.</small></div></li>
           </ol>
-
-          <div class="trust-note">
-            <span class="lock-icon" aria-hidden="true">⌁</span>
-            <span><strong>Your PIN stays private.</strong><br />This page never asks for it.</span>
-          </div>
-        </aside>
+        </section>
 
         <section class="form-panel" aria-labelledby="form-title">
-          <div class="panel-topline"><span class="receipt-label">PAYMENT REQUEST</span><span class="receipt-line"></span></div>
-          <h2 id="form-title">Where should we send it?</h2>
-          <p class="panel-copy">We’ll send a Till payment prompt to the number below. Make sure the phone is nearby.</p>
-
+          <div class="panel-kicker"><span>LIVE CHECKOUT</span><span class="kicker-line"></span><span class="till-chip">BUY GOODS TILL</span></div>
+          <h2 id="form-title">Send an STK prompt.</h2>
+          <p class="panel-copy">The customer will receive a secure payment request on their phone. This page never asks for an M-Pesa PIN.</p>
           <form id="payment-form" novalidate>
-            <div class="field-group">
-              <label for="phone">Safaricom phone number</label>
-              <div class="input-wrap phone-wrap"><span class="input-prefix">KE</span><input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0712 345 678" aria-describedby="phone-help phone-error" required /><span class="field-check" aria-hidden="true">✓</span></div>
-              <p class="field-help" id="phone-help">Use 07…, 01…, +254… or 254…</p>
-              <p class="field-error" id="phone-error" role="alert"></p>
-            </div>
-
-            <div class="field-group amount-group">
-              <label for="amount">Amount</label>
-              <div class="input-wrap amount-wrap"><span class="currency">KES</span><input id="amount" name="amount" type="number" min="1" max="150000" step="1" value="1" aria-describedby="amount-help amount-error" required /></div>
-              <p class="field-help" id="amount-help">Use a whole-number amount in Kenyan shillings.</p>
-              <p class="field-error" id="amount-error" role="alert"></p>
-            </div>
-
+            <div class="field-group"><label for="phone">Customer phone number</label><div class="input-wrap phone-wrap"><span class="input-prefix">KE</span><input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0712 345 678" aria-describedby="phone-help phone-error" required /><span class="field-check" aria-hidden="true">✓</span></div><p class="field-help" id="phone-help">Use 07…, 01…, +254… or 254…</p><p class="field-error" id="phone-error" role="alert"></p></div>
+            <div class="field-group"><label for="amount">Payment amount</label><div class="input-wrap amount-wrap"><span class="currency">KES</span><input id="amount" name="amount" type="number" min="1" max="150000" step="1" value="10" aria-describedby="amount-help amount-error" required /></div><p class="field-help" id="amount-help">Whole-number amount from KES 1 to KES 150,000.</p><p class="field-error" id="amount-error" role="alert"></p></div>
             <button class="submit-button" id="submit-button" type="submit"><span class="button-label">Send STK prompt</span><span class="button-arrow" aria-hidden="true">↗</span></button>
           </form>
-
-          <div class="status-card" id="status-card" data-state="idle" aria-live="polite" aria-atomic="true">
-            <span class="status-icon" aria-hidden="true">i</span>
-            <div><strong id="status-title">Ready when you are</strong><p id="status-message">Your payment request will appear here.</p></div>
-          </div>
-
+          <div class="status-card" id="status-card" data-state="idle" aria-live="polite" aria-atomic="true"><span class="status-icon" aria-hidden="true">i</span><div><strong id="status-title">Ready when you are</strong><p id="status-message">Your payment status will appear here.</p></div></div>
+          <div class="status-legend" aria-label="Payment statuses"><span><i class="legend-dot pending"></i>Pending</span><span><i class="legend-dot success"></i>Successful</span><span><i class="legend-dot cancelled"></i>Cancelled</span><span><i class="legend-dot danger"></i>Insufficient / failed</span></div>
           <p class="fine-print" id="fine-print">Checking the active Daraja environment…</p>
         </section>
       </main>
 
-      <footer class="footer"><span>Built for clear, safe payment handoffs.</span><span id="footer-mode">Daraja · Local testing</span></footer>
+      <footer class="footer"><div><strong>XCASPER SPACE</strong><span>STK TILL PUSH · Built by Casper-Tech-ke</span><small id="footer-mode">Daraja · Live configuration</small></div><nav aria-label="Developer links"><a href="https://github.com/Casper-Tech-ke/" target="_blank" rel="noreferrer">GitHub</a><a href="https://www.instagram.com/xcasper.space/" target="_blank" rel="noreferrer">Instagram</a><a href="https://t.me/xcasperspace" target="_blank" rel="noreferrer">Telegram</a><a href="/docs">Daraja docs</a></nav></footer>
     </div>
     <script src="/app.js" defer></script>
   </body>

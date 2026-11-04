@@ -2,7 +2,6 @@ const form = document.querySelector('#payment-form');
 const phoneInput = document.querySelector('#phone');
 const amountInput = document.querySelector('#amount');
 const submitButton = document.querySelector('#submit-button');
-const buttonLabel = document.querySelector('.button-label');
 const statusCard = document.querySelector('#status-card');
 const statusTitle = document.querySelector('#status-title');
 const statusMessage = document.querySelector('#status-message');
@@ -10,20 +9,31 @@ const environmentPill = document.querySelector('#environment-pill');
 const finePrint = document.querySelector('#fine-print');
 const footerMode = document.querySelector('#footer-mode');
 
-async function loadEnvironment() {
-  try {
-    const response = await fetch('/api/config', { headers: { Accept: 'application/json' } });
-    const config = await response.json();
-    const production = config.environment === 'production';
-    environmentPill.innerHTML = `<span class="status-dot"></span> ${production ? 'Production test' : 'Sandbox mode'}`;
-    finePrint.textContent = production
-      ? 'Production Till test mode. Continue only when you intend to trigger a live M-Pesa request.'
-      : 'By continuing, you’re testing against the Safaricom Daraja sandbox. No production funds are moved.';
-    footerMode.textContent = production ? 'Daraja production · Preview testing' : 'Daraja sandbox · Local testing';
-  } catch {
-    environmentPill.innerHTML = '<span class="status-dot"></span> Environment unavailable';
-    finePrint.textContent = 'The active payment environment could not be confirmed.';
-  }
+const states = {
+  idle: { icon: 'i', title: 'Ready when you are', message: 'Your payment status will appear here.' },
+  loading: { icon: '…', title: 'Connecting to Daraja', message: 'Preparing your secure Till payment request.' },
+  pending: { icon: '↗', title: 'Prompt sent to your phone', message: 'Approve the M-Pesa prompt on your phone to complete payment.' },
+  successful: { icon: '✓', title: 'Payment successful', message: 'The Till payment was completed successfully.' },
+  cancelled: { icon: '×', title: 'Payment cancelled', message: 'The payment was cancelled on the customer’s phone.' },
+  insufficient: { icon: '!', title: 'Insufficient balance', message: 'The customer did not have enough M-Pesa balance.' },
+  timeout: { icon: '⌛', title: 'No response from phone', message: 'The prompt expired before it was completed.' },
+  failed: { icon: '!', title: 'Payment not completed', message: 'Safaricom could not complete the payment.' },
+  error: { icon: '!', title: 'Could not start payment', message: 'Check the details and try again.' }
+};
+
+function setStatus(state, message) {
+  const copy = states[state] || states.error;
+  statusCard.dataset.state = state;
+  statusCard.querySelector('.status-icon').textContent = copy.icon;
+  statusTitle.textContent = copy.title;
+  statusMessage.textContent = message || copy.message;
+}
+
+function setFieldError(id, message) {
+  const field = document.querySelector(`#${id}`);
+  const group = field.closest('.field-group');
+  group.classList.toggle('invalid', Boolean(message));
+  group.querySelector('.field-error').textContent = message || '';
 }
 
 function normalizePhone(value) {
@@ -34,87 +44,53 @@ function normalizePhone(value) {
   return null;
 }
 
-function setFieldError(name, message) {
-  const input = name === 'phone' ? phoneInput : amountInput;
-  const group = input.closest('.field-group');
-  const error = document.querySelector(`#${name}-error`);
-  group.classList.toggle('invalid', Boolean(message));
-  input.closest('.input-wrap').classList.remove('valid');
-  error.textContent = message || '';
-  if (message) input.setAttribute('aria-invalid', 'true');
-  else input.removeAttribute('aria-invalid');
-}
-
 function validate() {
   const phone = normalizePhone(phoneInput.value);
   const amount = Number(amountInput.value);
-  let valid = true;
-
-  if (!phone) {
-    setFieldError('phone', 'Enter a valid Kenyan number, for example 0712 345 678.');
-    valid = false;
-  } else {
-    setFieldError('phone', '');
-    phoneInput.closest('.input-wrap').classList.add('valid');
-  }
-
-  if (!Number.isInteger(amount) || amount < 1 || amount > 150000) {
-    setFieldError('amount', 'Enter a whole-number amount between KES 1 and KES 150,000.');
-    valid = false;
-  } else {
-    setFieldError('amount', '');
-    amountInput.closest('.input-wrap').classList.add('valid');
-  }
-  return { valid, phone, amount };
+  setFieldError('phone', phone ? '' : 'Enter a valid Kenyan mobile number.');
+  setFieldError('amount', Number.isInteger(amount) && amount >= 1 && amount <= 150000 ? '' : 'Enter a whole-number amount between KES 1 and KES 150,000.');
+  return phone && Number.isInteger(amount) && amount >= 1 && amount <= 150000 ? { phone, amount } : null;
 }
 
-function showStatus(state, title, message) {
-  statusCard.dataset.state = state;
-  statusTitle.textContent = title;
-  statusMessage.textContent = message;
-  const icon = statusCard.querySelector('.status-icon');
-  icon.textContent = state === 'success' ? '✓' : state === 'error' ? '!' : state === 'loading' ? '·' : 'i';
-}
-
-function setLoading(loading) {
-  submitButton.disabled = loading;
-  buttonLabel.textContent = loading ? 'Sending prompt…' : 'Send STK prompt';
+async function pollStatus(checkoutRequestId) {
+  for (let attempt = 0; attempt < 40; attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    const response = await fetch(`/api/stk-status/${encodeURIComponent(checkoutRequestId)}`, { cache: 'no-store' });
+    if (!response.ok) continue;
+    const result = await response.json();
+    setStatus(result.state, result.message);
+    if (result.state !== 'pending') return;
+  }
+  setStatus('timeout', 'No callback arrived before the monitoring window closed. Check the M-Pesa message or business statement.');
 }
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
-  const { valid, phone, amount } = validate();
-  if (!valid) {
-    showStatus('error', 'Check the highlighted fields', 'We need a valid phone number and amount before sending.');
-    return;
-  }
-
-  setLoading(true);
-  showStatus('loading', 'Connecting to M-Pesa…', 'We’re sending the payment prompt to your phone.');
+  const details = validate();
+  if (!details) return;
+  submitButton.disabled = true;
+  submitButton.querySelector('.button-label').textContent = 'Sending prompt…';
+  setStatus('loading');
   try {
-    const response = await fetch('/api/stk-push', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, amount })
-    });
+    const response = await fetch('/api/stk-push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(details) });
     const result = await response.json().catch(() => ({}));
-    if (!response.ok || !result.ok) {
-      if (result.field) setFieldError(result.field, result.message);
-      throw new Error(result.message || 'The payment request could not be started.');
-    }
-    showStatus('success', 'Prompt sent to your phone', result.message || 'Approve the request in M-Pesa to complete the payment.');
+    if (!response.ok || !result.ok) throw new Error(result.message || 'The payment request could not be started.');
+    setStatus('pending', result.message);
+    if (result.checkoutRequestId) pollStatus(result.checkoutRequestId);
   } catch (error) {
-    showStatus('error', 'Couldn’t start the payment', error.message || 'Please check your details and try again.');
+    setStatus('error', error.message);
   } finally {
-    setLoading(false);
+    submitButton.disabled = false;
+    submitButton.querySelector('.button-label').textContent = 'Send STK prompt';
   }
 });
 
-phoneInput.addEventListener('input', () => {
-  if (phoneInput.value) validate();
+Promise.resolve(fetch('/api/config', { cache: 'no-store' })).then((response) => response.json()).then((config) => {
+  const label = config.environment === 'production' ? 'Production · Till live' : 'Sandbox · Test mode';
+  environmentPill.innerHTML = `<span class="status-dot"></span>${label}`;
+  finePrint.textContent = config.environment === 'production' ? 'Live Daraja mode · CustomerBuyGoodsOnline · H.O./Store → Till' : 'Sandbox Daraja mode · Test credentials only';
+  footerMode.textContent = config.environment === 'production' ? 'Daraja production · CustomerBuyGoodsOnline' : 'Daraja sandbox · Test mode';
+}).catch(() => {
+  environmentPill.innerHTML = '<span class="status-dot"></span>Mode unavailable';
+  finePrint.textContent = 'Daraja environment could not be read.';
 });
-amountInput.addEventListener('input', () => {
-  if (amountInput.value) validate();
-});
-
-loadEnvironment();

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="theme-color" content="#071c2e" />
+    <meta name="description" content="XCASPER SPACE STK TILL PUSH Daraja production setup, API calls, callbacks, and troubleshooting guide." />
+    <meta property="og:type" content="article" /><meta property="og:title" content="Daraja setup — XCASPER SPACE STK TILL PUSH" /><meta property="og:description" content="Production Buy Goods Till STK Push setup and troubleshooting." /><meta property="og:url" content="https://xcasper.space/docs" />
+    <link rel="icon" href="/assets/mpesa-logo.png" /><link rel="stylesheet" href="/styles.css" /><title>Daraja setup · XCASPER SPACE</title>
+  </head>
+  <body><div class="page-shell docs-shell">
+    <header class="topbar"><a class="brand" href="/"><span class="brand-orbit" aria-hidden="true"><span></span></span><span><b>XCASPER SPACE</b><small>STK TILL PUSH</small></span></a><a class="back-link" href="/">← Back to checkout</a></header>
+    <main class="docs-page"><p class="eyebrow">CASPER-TECH-KE / DARAJA PLAYBOOK</p><h1>Production Till STK, mapped clearly.</h1><p class="docs-lead">This guide documents the exact product, identifiers, API calls, callbacks, and status outcomes used by XCASPER SPACE STK TILL PUSH.</p>
+      <div class="docs-grid"><article class="docs-card docs-card-wide"><div class="docs-number">01</div><div><h2>Choose the right Daraja product</h2><p>This app uses <strong>M-Pesa Express / Lipa na M-Pesa Online</strong> for a customer-facing STK prompt. It is not the Business Buy Goods B2B API. In your production Daraja app, add the M-Pesa Express/Lipa na M-Pesa Online product and use its production passkey.</p><div class="callout"><strong>Important:</strong> Business Buy Goods is a separate business-to-business use case. It does not replace the STK Push product.</div></div></article>
+      <article class="docs-card"><div class="docs-number">02</div><div><h2>Map the Till identifiers</h2><p>For a Buy Goods Till STK request, use the H.O./Store number as <code>BusinessShortCode</code> and the actual Till number as <code>PartyB</code>.</p><dl><dt>BusinessShortCode</dt><dd>H.O. or Store number</dd><dt>PartyB</dt><dd>Actual customer-facing Till number</dd><dt>TransactionType</dt><dd><code>CustomerBuyGoodsOnline</code></dd></dl></div></article>
+      <article class="docs-card"><div class="docs-number">03</div><div><h2>Correct API calls</h2><pre><code>POST https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials
+Authorization: Basic base64(CONSUMER_KEY:CONSUMER_SECRET)
+
+POST https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest
+Authorization: Bearer ACCESS_TOKEN</code></pre><p class="muted">Sandbox swaps <code>api.safaricom.co.ke</code> for <code>sandbox.safaricom.co.ke</code>.</p></div></article>
+      <article class="docs-card"><div class="docs-number">04</div><div><h2>Request body essentials</h2><pre><code>{
+  "BusinessShortCode": "HO_OR_STORE_NUMBER",
+  "TransactionType": "CustomerBuyGoodsOnline",
+  "Amount": 10,
+  "PartyA": "2547XXXXXXXX",
+  "PartyB": "TILL_NUMBER",
+  "PhoneNumber": "2547XXXXXXXX",
+  "CallBackURL": "https://your-domain.example/api/callback"
+}</code></pre></div></article>
+      <article class="docs-card docs-card-wide"><div class="docs-number">05</div><div><h2>Production callback checklist</h2><ul class="check-list"><li>Use a public, internet-accessible URL.</li><li>Use HTTPS in production; HTTP is only allowed for sandbox simulation.</li><li>Register the exact confirmation/callback URL in Daraja before testing.</li><li>Do not use public URL testers or blocked keywords in the URL.</li><li>Return <code>{"ResultCode":0,"ResultDesc":"Accepted"}</code> quickly, then process the result.</li></ul><div class="callout success-callout"><strong>In this app:</strong> the callback is <code>/api/callback</code>; the UI polls the server and shows successful, cancelled, insufficient-balance, timeout, or failed states.</div></div></article>
+      <article class="docs-card"><div class="docs-number">06</div><div><h2>What each result means</h2><div class="result-list"><p><b class="green-text">Successful</b> — Safaricom returned ResultCode 0.</p><p><b class="red-text">Cancelled</b> — the customer cancelled the prompt.</p><p><b class="amber-text">Insufficient balance</b> — the customer balance could not cover the amount.</p><p><b class="muted">No response</b> — the prompt expired or the customer did not act.</p></div></div></article>
+      <article class="docs-card"><div class="docs-number">07</div><div><h2>Protected runtime settings</h2><dl><dt>MPESA_ENV</dt><dd><code>production</code></dd><dt>HO_NUMBER</dt><dd>Production H.O./Store number</dd><dt>TILL_NUMBER</dt><dd>Production Buy Goods Till</dd><dt>CALLBACK_URL</dt><dd>Public HTTPS callback URL</dd><dt>CONSUMER_KEY / SECRET</dt><dd>Never expose in browser code</dd></dl></div></article></div>
+      <section class="sources"><h2>Official references</h2><p><a href="https://developer.safaricom.co.ke/faqs" target="_blank" rel="noreferrer">Safaricom Daraja FAQs</a><a href="https://developer.safaricom.co.ke/apis/GettingStarted" target="_blank" rel="noreferrer">Daraja Getting Started</a><a href="https://github.com/safaricom/LNMOnlineAndroidSample/issues/8" target="_blank" rel="noreferrer">Safaricom Till identifier discussion</a><a href="https://www.safaricom.co.ke/images/Downloads/the-mpesa-business-till-guide.pdf" target="_blank" rel="noreferrer">Safaricom Business Till guide</a></p></section>
+    </main>
+    <footer class="footer"><div><strong>XCASPER SPACE</strong><span>STK TILL PUSH · Developer documentation by Casper-Tech-ke</span></div><nav><a href="https://github.com/Casper-Tech-ke/" target="_blank" rel="noreferrer">GitHub</a><a href="https://www.instagram.com/xcasper.space/" target="_blank" rel="noreferrer">Instagram</a><a href="https://t.me/xcasperspace" target="_blank" rel="noreferrer">Telegram</a><a href="/">Checkout</a></nav></footer>
+  </div></body>
+</html>
