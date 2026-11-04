@@ -6,6 +6,25 @@ const buttonLabel = document.querySelector('.button-label');
 const statusCard = document.querySelector('#status-card');
 const statusTitle = document.querySelector('#status-title');
 const statusMessage = document.querySelector('#status-message');
+const environmentPill = document.querySelector('#environment-pill');
+const finePrint = document.querySelector('#fine-print');
+const footerMode = document.querySelector('#footer-mode');
+
+async function loadEnvironment() {
+  try {
+    const response = await fetch('/api/config', { headers: { Accept: 'application/json' } });
+    const config = await response.json();
+    const production = config.environment === 'production';
+    environmentPill.innerHTML = `<span class="status-dot"></span> ${production ? 'Production test' : 'Sandbox mode'}`;
+    finePrint.textContent = production
+      ? 'Production test mode. Continue only when you intend to trigger a live M-Pesa request.'
+      : 'By continuing, you’re testing against the Safaricom Daraja sandbox. No production funds are moved.';
+    footerMode.textContent = production ? 'Daraja production · Preview testing' : 'Daraja sandbox · Local testing';
+  } catch {
+    environmentPill.innerHTML = '<span class="status-dot"></span> Environment unavailable';
+    finePrint.textContent = 'The active payment environment could not be confirmed.';
+  }
+}
 
 function normalizePhone(value) {
   const compact = String(value || '').trim().replace(/[\s().-]/g, '');
@@ -97,3 +116,5 @@ phoneInput.addEventListener('input', () => {
 amountInput.addEventListener('input', () => {
   if (amountInput.value) validate();
 });
+
+loadEnvironment();

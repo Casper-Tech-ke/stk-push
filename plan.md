@@ -4,7 +4,7 @@
 
 Build a self-contained Node.js web application on port 3000. The server serves the static frontend, exposes `POST /api/stk-push` for validated user requests, and receives Safaricom callbacks at `POST /api/callback`. Safaricom credentials remain in protected runtime environment variables and are never sent to the browser. The frontend uses plain HTML, CSS, and JavaScript so it is fast, portable, and easy to run locally.
 
-The STK request is user-initiated rather than automatic at process startup. The server normalizes Kenyan phone numbers, validates the amount, obtains a Daraja OAuth token, signs the request with the configured passkey, and returns the Safaricom response. Callback handling records the latest transaction outcome in memory for the current process and returns the accepted response expected by Safaricom.
+The STK request is user-initiated rather than automatic at process startup. The server normalizes Kenyan phone numbers, validates the amount, obtains a Daraja OAuth token, signs the request with the configured passkey, and returns the Safaricom response. The Safaricom base URL is selected from the protected `MPESA_ENV` value, so the same code supports sandbox and production testing without exposing credentials. Callback handling records the latest transaction outcome in memory for the current process and returns the accepted response expected by Safaricom. Production testing requires an explicitly configured public HTTPS callback URL.
 
 ## Project structure
 

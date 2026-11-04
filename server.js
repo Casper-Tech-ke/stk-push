@@ -6,6 +6,8 @@ const { URL } = require('node:url');
 const PORT = Number(process.env.PORT) || 3000;
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const MAX_BODY_BYTES = 32 * 1024;
+const isProduction = process.env.MPESA_ENV === 'production';
+const safaricomBaseUrl = isProduction ? 'https://api.safaricom.co.ke' : 'https://sandbox.safaricom.co.ke';
 
 const contentTypes = {
   '.html': 'text/html; charset=utf-8',
@@ -69,6 +71,7 @@ function validateAmount(value) {
 
 function getCallbackUrl(req) {
   if (process.env.CALLBACK_URL) return process.env.CALLBACK_URL;
+  if (isProduction) throw new Error('A public HTTPS CALLBACK_URL is required for production testing.');
   const forwardedProto = String(req.headers['x-forwarded-proto'] || '').split(',')[0].trim();
   const forwardedHost = String(req.headers['x-forwarded-host'] || '').split(',')[0].trim();
   const protocol = forwardedProto || 'http';
@@ -88,7 +91,7 @@ async function getAccessToken() {
   if (!key || !secret) throw new Error('Safaricom credentials are not configured on the server.');
 
   const credentials = Buffer.from(`${key}:${secret}`).toString('base64');
-  const response = await fetch('https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials', {
+  const response = await fetch(`${safaricomBaseUrl}/oauth/v1/generate?grant_type=client_credentials`, {
     headers: {
       Authorization: `Basic ${credentials}`,
       Accept: 'application/json'
@@ -102,14 +105,15 @@ async function getAccessToken() {
 }
 
 async function sendStkPush(req, phoneNumber, amount) {
-  const shortCode = process.env.SHORTCODE || '174379';
+  const shortCode = process.env.SHORTCODE || (isProduction ? '' : '174379');
+  if (!shortCode) throw new Error('The production shortcode is not configured on the server.');
   const passkey = process.env.PASSKEY;
   if (!passkey) throw new Error('The Safaricom passkey is not configured on the server.');
 
   const timestamp = currentTimestamp();
   const password = Buffer.from(`${shortCode}${passkey}${timestamp}`).toString('base64');
   const token = await getAccessToken();
-  const response = await fetch('https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest', {
+  const response = await fetch(`${safaricomBaseUrl}/mpesa/stkpush/v1/processrequest`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -213,8 +217,12 @@ function serveStatic(req, res, pathname) {
 
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+  if (req.method === 'GET' && url.pathname === '/api/config') {
+    sendJson(res, 200, { environment: isProduction ? 'production' : 'sandbox' });
+    return;
+  }
   if (req.method === 'GET' && url.pathname === '/health') {
-    sendJson(res, 200, { ok: true, service: 'mpesa-stk-checkout' });
+    sendJson(res, 200, { ok: true, service: 'mpesa-stk-checkout', environment: isProduction ? 'production' : 'sandbox' });
     return;
   }
   if (req.method === 'POST' && url.pathname === '/api/stk-push') {

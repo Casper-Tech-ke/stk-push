@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="A clear, secure M-Pesa STK Push sandbox checkout." />
+    <meta name="description" content="A clear, secure M-Pesa STK Push checkout." />
     <title>M-Pesa STK Checkout</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
@@ -14,7 +14,7 @@
           <span class="brand-mark" aria-hidden="true"><span></span><span></span></span>
           <span>M-Pesa <em>checkout</em></span>
         </a>
-        <div class="sandbox-pill"><span class="status-dot"></span> Sandbox mode</div>
+        <div class="sandbox-pill" id="environment-pill"><span class="status-dot"></span> Loading mode</div>
       </header>
 
       <main class="checkout-layout">
@@ -60,7 +60,7 @@
             <div class="field-group amount-group">
               <label for="amount">Amount</label>
               <div class="input-wrap amount-wrap"><span class="currency">KES</span><input id="amount" name="amount" type="number" min="1" max="150000" step="1" value="1" aria-describedby="amount-help amount-error" required /></div>
-              <p class="field-help" id="amount-help">Sandbox payments accept whole numbers from KES 1.</p>
+              <p class="field-help" id="amount-help">Use a whole-number amount in Kenyan shillings.</p>
               <p class="field-error" id="amount-error" role="alert"></p>
             </div>
 
@@ -72,11 +72,11 @@
             <div><strong id="status-title">Ready when you are</strong><p id="status-message">Your payment request will appear here.</p></div>
           </div>
 
-          <p class="fine-print">By continuing, you’re testing against the Safaricom Daraja sandbox. No production funds are moved.</p>
+          <p class="fine-print" id="fine-print">Checking the active Daraja environment…</p>
         </section>
       </main>
 
-      <footer class="footer"><span>Built for clear, safe payment handoffs.</span><span>Daraja sandbox · Local testing</span></footer>
+      <footer class="footer"><span>Built for clear, safe payment handoffs.</span><span id="footer-mode">Daraja · Local testing</span></footer>
     </div>
     <script src="/app.js" defer></script>
   </body>

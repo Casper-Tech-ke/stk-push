@@ -16,7 +16,10 @@
 
 ## Safaricom integration
 
-- [ ] Preserve the Safaricom sandbox OAuth, STK Push request, and callback response behavior.
+- [ ] Preserve the Safaricom Daraja OAuth, STK Push request, and callback response behavior for the configured environment.
+- [ ] Select sandbox or production endpoints only from protected runtime configuration.
+- [ ] Show the active environment in the interface without exposing credentials.
+- [ ] Require a public HTTPS callback URL when production mode is enabled.
 - [ ] Receive callback notifications at a server endpoint and return the accepted response expected by Safaricom.
 
 ## Preview readiness
