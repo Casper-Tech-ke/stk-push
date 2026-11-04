@@ -184,19 +184,13 @@ Safaricom states that production callback URLs must be HTTPS and publicly reacha
 
 ## Evidence supplied for this project
 
-The following screenshots were provided for the README and copied into `public/assets/proof/`. They document the developer/account context and Daraja production app context; they are **not** presented as transaction receipts.
-
-### Casper-Tech-ke developer presence
-
-![Casper-Tech-ke GitHub evidence](public/assets/proof/casper-tech-ke-github-proof.png)
-
-[Open the original screenshot](https://i.postimg.cc/PxwnP3FJ/Screenshot-20261104-214156.png)
+The following screenshot was provided for the README and copied into `public/assets/proof/`. It documents the Daraja production app context; it is **not** presented as a transaction receipt. The short-code row has been blurred before committing this copy.
 
 ### Daraja production app dashboard
 
 ![Daraja production app evidence](public/assets/proof/daraja-production-dashboard-proof.png)
 
-[Open the original screenshot](https://i.postimg.cc/PqckfsKp/Screenshot-20261105-013652.png)
+[Open the original screenshot](https://i.postimg.cc/PqckfsKp/Screenshot-20261105-013652.png) — the repository copy is the redacted version.
 
 ## Official references
 
