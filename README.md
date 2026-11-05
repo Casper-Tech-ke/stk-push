@@ -235,6 +235,8 @@ This project is owned by [Casper-Tech-ke](https://github.com/Casper-Tech-ke/). I
 
 The site is improved and maintained by **SPACE TECH KE DEVS**.
 
+See the full [acknowledgements](./ACKNOWLEDGEMENTS.md) and the [MIT License](./LICENSE).
+
 ## Security note
 
 This project handles live payment requests. Keep all production credentials in protected runtime configuration, use HTTPS callbacks, avoid duplicate retries, verify callback results before marking a payment successful, and reconcile successful transactions against the merchant statement.
