@@ -229,9 +229,9 @@ The following screenshot was provided for the README and copied into `public/ass
 
 The deployed checkout is available at [stk.xcasper.space](https://stk.xcasper.space). The site uses a public HTTPS callback at `https://stk.xcasper.space/api/callback` for the production Daraja integration.
 
-## Build with Manus
+## Quick setup in Manus
 
-Want to build something like this quickly? [Create a new Manus account with this invitation link](https://manus.im/invitation/MORMXY9CDKBMVDH?utm_source=invitation&utm_medium=social&utm_campaign=copy_link). Google login is recommended for direct registration.
+[Open Manus for quick setup](https://manus.im/invitation/MORMXY9CDKBMVDH?utm_source=invitation&utm_medium=social&utm_campaign=copy_link). Google login is recommended for direct registration.
 
 ## Acknowledgements
 
