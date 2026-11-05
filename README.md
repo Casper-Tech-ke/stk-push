@@ -229,6 +229,10 @@ The following screenshot was provided for the README and copied into `public/ass
 
 The deployed checkout is available at [stk.xcasper.space](https://stk.xcasper.space). The site uses a public HTTPS callback at `https://stk.xcasper.space/api/callback` for the production Daraja integration.
 
+## Build with Manus
+
+Want to build something like this quickly? [Create a new Manus account with this invitation link](https://manus.im/invitation/MORMXY9CDKBMVDH?utm_source=invitation&utm_medium=social&utm_campaign=copy_link). Google login is recommended for direct registration.
+
 ## Acknowledgements
 
 This project is owned by [Casper-Tech-ke](https://github.com/Casper-Tech-ke/). It is based on the original STK implementation by [Fortunatusmokaya](https://github.com/Fortunatusmokaya), with knowledge and ideas contributed by [mauricegift](https://github.com/mauricegift), and watch-over, review, and support by [kkeizza](https://github.com/kkeizza/).
