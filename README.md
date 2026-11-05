@@ -225,6 +225,16 @@ The following screenshot was provided for the README and copied into `public/ass
 - [Telegram — @xcasperspace](https://t.me/xcasperspace)
 - [Website — xcasper.space](https://xcasper.space)
 
+## Live site
+
+The deployed checkout is available at [stk.xcasper.space](https://stk.xcasper.space). The site uses a public HTTPS callback at `https://stk.xcasper.space/api/callback` for the production Daraja integration.
+
+## Acknowledgements
+
+This project is owned by [Casper-Tech-ke](https://github.com/Casper-Tech-ke/). It is based on the original STK implementation by [Fortunatusmokaya](https://github.com/Fortunatusmokaya), with knowledge and ideas contributed by [mauricegift](https://github.com/mauricegift), and watch-over, review, and support by [kkeizza](https://github.com/kkeizza/).
+
+The site is improved and maintained by **SPACE TECH KE DEVS**.
+
 ## Security note
 
 This project handles live payment requests. Keep all production credentials in protected runtime configuration, use HTTPS callbacks, avoid duplicate retries, verify callback results before marking a payment successful, and reconcile successful transactions against the merchant statement.
